@@ -2,10 +2,11 @@ const std = @import("std");
 const rl = @import("raylib");
 const rm = @import("raymath");
 
+const print = std.debug.print;
+
 const SCREEN_WIDTH = 1920;
 const SCREEN_HEIGHT = 1080;
 const Vector2 = rl.Vector2;
-const print = std.debug.print;
 
 const Ship = struct {
     center: Vector2,
@@ -38,19 +39,6 @@ const Ship = struct {
 
         return;
     }
-
-    fn calcVectorDelta(size: f32, dir: f32) Vector2 {
-        print("Dir: {}\n", .{dir});
-        const radDir = toRadians(dir);
-        print("Radian Dir: {}\n", .{radDir});
-        const newX = size * std.math.cos(radDir);
-        const newY = size * std.math.sin(radDir);
-        return Vector2.init(newX, newY);
-    }
-
-    fn toRadians(deg: f32) f32 {
-        return deg * (180.0 / std.math.pi);
-    }
 };
 
 pub fn main() anyerror!void {
@@ -69,4 +57,25 @@ pub fn main() anyerror!void {
         rl.beginDrawing();
         defer rl.endDrawing();
     }
+}
+
+fn calcVectorDelta(size: f32, dir: f32) Vector2 {
+    print("Dir: {}\n", .{dir});
+    const radDir = toRadians(dir);
+    print("Radian Dir: {}\n", .{radDir});
+    const newX = size * std.math.cos(radDir);
+    const newY = size * std.math.sin(radDir);
+    return Vector2.init(newX, newY);
+}
+
+test toRadians {
+    // const vec1 = Vector2.init(10.0, 0.0);
+    // const res = calcVectorDelta(10.0, 0.0).equals(vec1);
+    // print("{}", .{res});
+    try std.testing.expect(0 == 0);
+    try std.testing.expect(1 == 0);
+}
+
+fn toRadians(deg: f32) f32 {
+    return deg * (180.0 / std.math.pi);
 }

@@ -1,0 +1,10 @@
+# Zig build artifacts
+.zig-cache/
+zig-out/
+
+# Binary files
+*.o
+*.exe
+*.dll
+*.dylib
+*.so

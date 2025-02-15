@@ -1,0 +1,15 @@
+#!/bin/zsh
+if [ "$#" -eq 0 ]; then
+    # No arguments passed, run the default command
+    zig build run
+elif [ "$1" = "test" ]; then
+    # If the argument is "test", run tests
+    zig build && ./zig-out/bin/test
+else
+    # If the argument is invalid, show help message
+    echo "Usage: $0 [test]"
+    echo "  - If no arguments are provided, runs 'zig build run'."
+    echo "  - If 'test' is provided, runs 'zig build' and executes tests."
+    echo "  - Any other argument prints this help message."
+    exit 1
+fi
