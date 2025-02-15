@@ -1,16 +1,17 @@
 const std = @import("std");
 const rl = @import("raylib");
-const rm = @import("raymath");
 
 const print = std.debug.print;
 
 const SCREEN_WIDTH = 1920;
 const SCREEN_HEIGHT = 1080;
+const BLACK = rl.Color.black;
+const WHITE = rl.Color.white;
 const Vector2 = rl.Vector2;
 
 const Ship = struct {
     center: Vector2,
-    size: f32 = 10.0,
+    size: f32 = 80.0,
     direction: f32 = 0.0,
 
     pub fn init(center: Vector2, direction: f32) Ship {
@@ -22,8 +23,8 @@ const Ship = struct {
 
     pub fn draw(self: Ship) void {
         const frontDelta = calcVectorDelta(self.size, self.direction);
-        const leftDelta = calcVectorDelta(self.size, @mod((self.direction - 145.0), 360.0));
-        const rightDelta = calcVectorDelta(self.size, @mod((self.direction + 145.0), 360.0));
+        const leftDelta = calcVectorDelta(self.size, @mod((self.direction + 150.0), 360.0));
+        const rightDelta = calcVectorDelta(self.size, @mod((self.direction + 210.0), 360.0));
 
         print("Front Delta: {}, {}\n", .{ frontDelta.x, frontDelta.y });
 
@@ -34,8 +35,9 @@ const Ship = struct {
         print("Front Point: {}, {}\n", .{ frontPoint.x, frontPoint.y });
         print("Center: {}, {}\n", .{ self.center.x, self.center.y });
 
-        rl.drawLineV(frontPoint, leftPoint, rl.Color.white);
-        rl.drawLineV(frontPoint, rightPoint, rl.Color.white);
+        rl.drawLineV(frontPoint, leftPoint, rl.Color.green);
+        rl.drawLineV(frontPoint, rightPoint, rl.Color.blue);
+        rl.drawLineV(leftPoint, rightPoint, WHITE);
 
         return;
     }
@@ -45,11 +47,12 @@ pub fn main() anyerror!void {
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Asteroids!");
     defer rl.closeWindow();
 
-    rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
-    rl.clearBackground(rl.Color.black);
+    rl.setTargetFPS(rl.getMonitorRefreshRate(1));
+    rl.clearBackground(BLACK);
 
     const center = Vector2.init((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2));
-    var player = Ship.init(center, 0.0);
+    rl.drawCircleLines(960, 540, 80.0, WHITE);
+    var player = Ship.init(center, 90.0);
     player.draw();
 
     // Main game loop
@@ -60,22 +63,23 @@ pub fn main() anyerror!void {
 }
 
 fn calcVectorDelta(size: f32, dir: f32) Vector2 {
-    print("Dir: {}\n", .{dir});
     const radDir = toRadians(dir);
-    print("Radian Dir: {}\n", .{radDir});
     const newX = size * std.math.cos(radDir);
     const newY = size * std.math.sin(radDir);
     return Vector2.init(newX, newY);
 }
 
 test toRadians {
-    // const vec1 = Vector2.init(10.0, 0.0);
-    // const res = calcVectorDelta(10.0, 0.0).equals(vec1);
-    // print("{}", .{res});
-    try std.testing.expect(0 == 0);
-    try std.testing.expect(1 == 0);
+    // 0 degrees
+    try std.testing.expect(toRadians(0) == 0.0);
+
+    // 240 degrees location
+    try std.testing.expect(toRadians(240) == (std.math.pi * 4) / 3.0);
+
+    // >360 degrees test
+    // Not sure how to handle this yet
 }
 
 fn toRadians(deg: f32) f32 {
-    return deg * (180.0 / std.math.pi);
+    return deg * (std.math.pi / 180.0);
 }
