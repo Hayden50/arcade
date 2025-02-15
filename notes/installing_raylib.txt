@@ -1,0 +1,9 @@
+I had some trouble installing raylib with Zig 0.13.0 so I figured I'd document it here. The problems being related to attempting the installation while using Wayland (specifically with SwayWM). To get past compile-time errors, I followed these steps:
+
+    1. Run `sudo dnf install alsa-lib-devel mesa-libGL-devel libX11-devel libXrandr-devel libXi-devel libXcursor-devel libXinerama-devel libatomic`
+    2. Clone https://github.com/Not-Nik/raylib-zig into a temporary directory
+    3. Navigate into directory and run ./project_setup.sh {dir_name}
+    4. Take the generated directory and move it to wherever you need it to be
+    5. Compile with `Zig build` and things should be working now.
+
+Essentially the error just has to do with not having the proper wayland libraries downloaded, so when Raylib goes to fetch something it errors. 

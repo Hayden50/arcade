@@ -1,0 +1,6 @@
+[submodule "asteroids/raylib~"]
+	path = asteroids/raylib~
+	url = https://github.com/ryupold/raylib.zig
+[submodule "asteroids/raylib"]
+	path = asteroids/raylib
+	url = https://github.com/ryupold/raylib.zig
