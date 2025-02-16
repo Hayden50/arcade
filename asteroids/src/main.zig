@@ -21,16 +21,20 @@ pub fn main() anyerror!void {
         // Logic
         const key = rl.KeyboardKey;
         var delta = Vector2.init(0.0, 0.0);
-        if (rl.isKeyDown(key.right)) delta.x += 2.0;
-        if (rl.isKeyDown(key.left)) delta.x -= 2.0;
-        if (rl.isKeyDown(key.up)) delta.y -= 2.0;
-        if (rl.isKeyDown(key.down)) delta.y += 2.0;
+        if (rl.isKeyDown(key.right) or rl.isKeyDown(key.d)) delta.x += 2.0;
+        if (rl.isKeyDown(key.left) or rl.isKeyDown(key.a)) delta.x -= 2.0;
+        if (rl.isKeyDown(key.up) or rl.isKeyDown(key.w)) delta.y -= 2.0;
+        if (rl.isKeyDown(key.down) or rl.isKeyDown(key.s)) delta.y += 2.0;
+
+        var angle: f32 = 0.0;
+        if (rl.isKeyDown(key.e)) angle += 2.0;
+        if (rl.isKeyDown(key.q)) angle -= 2.0;
 
         // Drawing -- Uses setTargetFPS function to limit movement
         rl.beginDrawing();
         defer rl.endDrawing();
 
         rl.clearBackground(constants.BLACK);
-        player.shift(delta);
+        player.move(delta, angle);
     }
 }

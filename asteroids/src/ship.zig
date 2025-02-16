@@ -25,13 +25,19 @@ pub const Ship = struct {
         return s;
     }
 
+    pub fn move(self: *Ship, positionDelta: Vector2, angleDelta: f32) void {
+        self.rotate(angleDelta);
+        self.shift(positionDelta);
+        self.draw(constants.WHITE);
+    }
+
     fn draw(self: *Ship, color: rl.Color) void {
         rl.drawLineV(self.points[0], self.points[1], color);
         rl.drawLineV(self.points[0], self.points[2], color);
         rl.drawLineV(self.points[1], self.points[2], color);
     }
 
-    pub fn shift(self: *Ship, delta: Vector2) void {
+    fn shift(self: *Ship, delta: Vector2) void {
         var newPoints = std.mem.zeroes([3]Vector2);
         for (newPoints, 0..) |_, i| {
             newPoints[i] = Vector2.init(self.points[i].x + delta.x, self.points[i].y + delta.y);
@@ -42,8 +48,38 @@ pub const Ship = struct {
             self.center.y += delta.y;
             @memcpy(&self.points, &newPoints);
         }
+    }
 
-        self.draw(constants.WHITE);
+    // TODO: Optimize this function (or just clean it up)
+    fn rotate(self: *Ship, angleDelta: f32) void {
+        var newPoints = std.mem.zeroes([3]Vector2);
+        const newDir = self.direction + angleDelta;
+
+        const front = calcVectorDelta(self.size, newDir);
+        newPoints[0].x = front.x + self.center.x;
+        newPoints[0].y = front.y + self.center.y;
+        const left = calcVectorDelta(self.size, @mod((newDir + 150.0), 360.0));
+        newPoints[1].x = left.x + self.center.x;
+        newPoints[1].y = left.y + self.center.y;
+        const right = calcVectorDelta(self.size, @mod((newDir + 210.0), 360.0));
+        newPoints[2].x = right.x + self.center.x;
+        newPoints[2].y = right.y + self.center.y;
+
+        if (checkBounds(&newPoints)) {
+            self.direction = newDir;
+            @memcpy(&self.points, &newPoints);
+            // self.direction += angleDelta;
+            //
+            // const front = calcVectorDelta(self.size, self.direction);
+            // self.points[0].x = front.x + self.center.x;
+            // self.points[0].y = front.y + self.center.y;
+            // const left = calcVectorDelta(self.size, @mod((self.direction + 150.0), 360.0));
+            // self.points[1].x = left.x + self.center.x;
+            // self.points[1].y = left.y + self.center.y;
+            // const right = calcVectorDelta(self.size, @mod((self.direction + 210.0), 360.0));
+            // self.points[2].x = right.x + self.center.x;
+            // self.points[2].y = right.y + self.center.y;
+        }
     }
 
     // Returns true if its fine to move there
@@ -65,7 +101,6 @@ pub const Ship = struct {
         }
         print("------------------------------\n", .{});
     }
-    // pub fn rotate() void {}
 };
 
 // Inputs the size of the ship and the direction it is pointing and calculates the
