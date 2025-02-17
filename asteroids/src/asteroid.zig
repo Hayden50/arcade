@@ -5,10 +5,10 @@ const constants = @import("constants.zig");
 
 const Vector2 = rl.Vector2;
 
-const Size = enum(u2) {
-    small = 3,
-    medium = 2,
-    large = 1,
+const Size = enum(u4) {
+    small = 4,
+    medium = 3,
+    large = 2,
 };
 
 pub const Asteroid = struct {
@@ -22,8 +22,8 @@ pub const Asteroid = struct {
         const size = sizeVals[rng.intRangeLessThan(usize, 0, 3)];
 
         const center = generateSpawnLocation(rng);
-        // const velocity = Vector2.one();
-        const velocity = calculateInitialVelocity(center);
+        const speedScalar = @as(f32, @floatFromInt(@intFromEnum(size))) / 2;
+        const velocity = calculateInitialVelocity(center).scale(speedScalar);
 
         return Asteroid{
             .center = center,
@@ -122,7 +122,18 @@ pub const Asteroid = struct {
 
     fn draw(self: *Asteroid) void {
         // TODO: Cleanup this casting
-        const asteroidSize = 10.0 * @as(f32, @floatFromInt(@intFromEnum(self.size)));
+        var asteroidSize: f32 = 0;
+        switch (self.size) {
+            Size.small => {
+                asteroidSize = 15.0;
+            },
+            Size.medium => {
+                asteroidSize = 30.0;
+            },
+            Size.large => {
+                asteroidSize = 50.0;
+            },
+        }
         rl.drawCircleV(self.center, asteroidSize, constants.WHITE);
     }
 };

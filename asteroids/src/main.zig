@@ -1,6 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 
+const Game = @import("game.zig").Game;
 const Ship = @import("ship.zig").Ship;
 const Bullet = @import("bullet.zig").Bullet;
 const Asteroid = @import("asteroid.zig").Asteroid;
@@ -16,6 +17,7 @@ pub fn main() anyerror!void {
     rl.setTargetFPS(rl.getMonitorRefreshRate(1));
     rl.clearBackground(constants.BLACK);
 
+    var GameState = Game{};
     var player = Ship.init();
 
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -30,12 +32,8 @@ pub fn main() anyerror!void {
     var canShoot: bool = true;
     const shotBlock = @divFloor(rl.getMonitorRefreshRate(1), 6); // Required number of frames before another shot can occur
 
-    for (0..20) |_| {
+    for (0..5) |_| {
         try asteroids.append(Asteroid.init());
-    }
-
-    for (asteroids.items) |*asteroid| {
-        print("Size: {}\tCenter: {}, {}\n", .{ asteroid.size, asteroid.center.x, asteroid.center.y });
     }
 
     // Main game loop
@@ -58,7 +56,7 @@ pub fn main() anyerror!void {
         }
 
         // TODO: Add actual logic for rate of spawning asteroids
-        if (frame == 20 or frame == 60 or frame == 80) {
+        if (frame == 20 or frame == 80) {
             try asteroids.append(Asteroid.init());
         }
 
@@ -71,6 +69,7 @@ pub fn main() anyerror!void {
         }
 
         if (frame + 1 == rl.getMonitorRefreshRate(1)) {
+            GameState.time += 1;
             frame = 0;
         } else {
             frame += 1;
@@ -100,7 +99,6 @@ pub fn main() anyerror!void {
             const yLoc = asteroid.center.y;
             if (i < asteroids.items.len) {
                 if (xLoc < -10 or xLoc >= constants.SCREEN_WIDTH + 10 or yLoc < -10 or yLoc >= constants.SCREEN_HEIGHT + 10) {
-                    print("Removing index {}. Array size {}\n", .{ i, asteroids.items.len });
                     _ = asteroids.swapRemove(i);
                 }
                 asteroid.move();
