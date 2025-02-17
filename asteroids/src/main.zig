@@ -61,7 +61,12 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(constants.BLACK);
         player.move(delta, angle);
-        for (bullets.items) |*bullet| {
+        for (bullets.items, 0..) |*bullet, i| {
+            const xLoc = bullet.location.x;
+            const yLoc = bullet.location.y;
+            if (xLoc < 0 or xLoc >= constants.SCREEN_WIDTH or yLoc < 0 or yLoc >= constants.SCREEN_HEIGHT) {
+                _ = bullets.swapRemove(i);
+            }
             bullet.move();
         }
     }
