@@ -20,18 +20,7 @@ pub const Asteroid = struct {
         const sizeVals = std.enums.values(Size);
         const size = sizeVals[rng.intRangeLessThan(usize, 0, 3)];
 
-        var xVal: f32 = 0.0;
-        var yVal: f32 = 0.0;
-
-        // Randomly choose if the asteroids are coming from the top or bottom
-        if (rng.boolean()) {
-            xVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_WIDTH)));
-            yVal = 0.0;
-        } else {
-            xVal = 0.0;
-            yVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_HEIGHT)));
-        }
-        const center = Vector2.init(xVal, yVal);
+        const center = generateSpawnLocation(rng);
         const velocity = Vector2.one();
 
         return Asteroid{
@@ -39,6 +28,34 @@ pub const Asteroid = struct {
             .size = size,
             .velocity = velocity,
         };
+    }
+
+    fn generateSpawnLocation(rng: std.Random) Vector2 {
+
+        // 0 : left, 1: top, 2: right, 3: bottom
+        const side = rng.intRangeLessThan(u8, 0, 4);
+        var xVal: f32 = 0.0;
+        var yVal: f32 = 0.0;
+
+        switch (side) {
+            0 => {
+                yVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_HEIGHT)));
+            },
+            1 => {
+                xVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_WIDTH)));
+            },
+            2 => {
+                xVal = @as(f32, @floatFromInt(constants.SCREEN_WIDTH));
+                yVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_HEIGHT)));
+            },
+            3 => {
+                xVal = @as(f32, @floatFromInt(rng.intRangeLessThan(u32, 0, constants.SCREEN_WIDTH)));
+                yVal = @as(f32, @floatFromInt(constants.SCREEN_HEIGHT));
+            },
+            else => {},
+        }
+
+        return Vector2.init(xVal, yVal);
     }
 
     // TODO: Implement this function properly
@@ -58,6 +75,8 @@ pub const Asteroid = struct {
     }
 
     fn draw(self: *Asteroid) void {
-        rl.drawCircleV(self.center, 10.0 * @intFromEnum(self.size), constants.WHITE);
+        // TODO: Cleanup this casting
+        const asteroidSize = 10.0 * @as(f32, @floatFromInt(@intFromEnum(self.size)));
+        rl.drawCircleV(self.center, asteroidSize, constants.WHITE);
     }
 };
