@@ -105,7 +105,6 @@ pub const Asteroid = struct {
         return higher;
     }
 
-    // TODO: Implement this function properly
     pub fn split(self: *Asteroid, gameState: *Game) ?[2]Asteroid {
         if (self.size == Size.small) {
             gameState.score += 25;

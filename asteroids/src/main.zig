@@ -96,28 +96,47 @@ pub fn main() anyerror!void {
         }
 
         // TODO: Optimize this function!
-        // TODO: FIX BREAKING BUG IN THIS FUNCTION
+        // TODO: Write tests?
         // MultiArrayList??
-        for (asteroids.items, 0..) |*asteroid, i| {
+        // Edge cases:
+        //      First element is a hit and it's small
+        //      First element is a hit and it's large
+        //      First element is hit, it's small, and it's the only asteroid
+        //      Last element is hit and it's large
+        //      Last element is hit and it's small
+        //      Last element is hit and it's the only one
+        var i: usize = 0;
+        var removed: bool = false;
+        while (i < asteroids.items.len) {
+            var asteroid = &asteroids.items[i];
+            removed = false;
+
             for (bullets.items, 0..) |*bullet, j| {
                 if (rl.checkCollisionCircles(bullet.location, 1.5, asteroid.center, asteroid.getAsteroidRadius())) {
                     if (asteroid.split(&GlobalGameState)) |newAsteroids| {
-                        try asteroids.appendSlice(&newAsteroids);
+                        try asteroids.appendSlice(&newAsteroids); // Does this cause an error in some cases?
                     }
                     _ = asteroids.swapRemove(i);
                     _ = bullets.swapRemove(j);
-                    continue;
+                    removed = true;
+                    break;
                 }
             }
+
+            if (removed) continue;
 
             const xLoc = asteroid.center.x;
             const yLoc = asteroid.center.y;
             if (i < asteroids.items.len) {
                 if (xLoc < -10 or xLoc >= constants.SCREEN_WIDTH + 10 or yLoc < -10 or yLoc >= constants.SCREEN_HEIGHT + 10) {
                     _ = asteroids.swapRemove(i);
+                    removed = true;
+                } else {
+                    asteroid.move();
                 }
-                asteroid.move();
             }
+
+            if (!removed) i += 1;
         }
     }
 }
