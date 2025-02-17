@@ -1,6 +1,7 @@
 const std = @import("std");
 const rl = @import("raylib");
 const constants = @import("constants.zig");
+const utils = @import("utils.zig");
 
 const Vector2 = rl.Vector2;
 const print = std.debug.print;
@@ -68,17 +69,6 @@ pub const Ship = struct {
         if (checkBounds(&newPoints)) {
             self.direction = newDir;
             @memcpy(&self.points, &newPoints);
-            // self.direction += angleDelta;
-            //
-            // const front = calcVectorDelta(self.size, self.direction);
-            // self.points[0].x = front.x + self.center.x;
-            // self.points[0].y = front.y + self.center.y;
-            // const left = calcVectorDelta(self.size, @mod((self.direction + 150.0), 360.0));
-            // self.points[1].x = left.x + self.center.x;
-            // self.points[1].y = left.y + self.center.y;
-            // const right = calcVectorDelta(self.size, @mod((self.direction + 210.0), 360.0));
-            // self.points[2].x = right.x + self.center.x;
-            // self.points[2].y = right.y + self.center.y;
         }
     }
 
@@ -106,23 +96,8 @@ pub const Ship = struct {
 // Inputs the size of the ship and the direction it is pointing and calculates the
 // change in each point rotationally
 fn calcVectorDelta(size: f32, dir: f32) Vector2 {
-    const radDir = toRadians(dir);
+    const radDir = utils.toRadians(dir);
     const newX = size * std.math.cos(radDir);
     const newY = size * std.math.sin(radDir);
     return Vector2.init(newX, newY);
-}
-
-test toRadians {
-    // 0 degrees
-    try std.testing.expect(toRadians(0) == 0.0);
-
-    // 240 degrees location
-    try std.testing.expect(toRadians(240) == (std.math.pi * 4) / 3.0);
-
-    // >360 degrees test
-    // Not sure how to handle this yet
-}
-
-fn toRadians(deg: f32) f32 {
-    return deg * (std.math.pi / 180.0);
 }
