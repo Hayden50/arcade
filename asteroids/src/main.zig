@@ -25,11 +25,12 @@ pub fn main() anyerror!void {
     var bullets = std.ArrayList(Bullet).init(allocator);
     var asteroids = std.ArrayList(Asteroid).init(allocator);
 
+    var shotCooldown: u32 = 0;
     var frame: u32 = 0;
     var canShoot: bool = true;
     const shotBlock = @divFloor(rl.getMonitorRefreshRate(1), 6); // Required number of frames before another shot can occur
 
-    for (0..10) |_| {
+    for (0..20) |_| {
         try asteroids.append(Asteroid.init());
     }
 
@@ -56,12 +57,23 @@ pub fn main() anyerror!void {
             canShoot = false;
         }
 
+        // TODO: Add actual logic for rate of spawning asteroids
+        if (frame == 20 or frame == 60 or frame == 80) {
+            try asteroids.append(Asteroid.init());
+        }
+
         if (!canShoot) {
-            frame += 1;
-            if (frame == shotBlock) {
+            shotCooldown += 1;
+            if (shotCooldown == shotBlock) {
                 canShoot = true;
-                frame = 0;
+                shotCooldown = 0;
             }
+        }
+
+        if (frame + 1 == rl.getMonitorRefreshRate(1)) {
+            frame = 0;
+        } else {
+            frame += 1;
         }
 
         // Drawing -- Uses setTargetFPS function to limit movement
@@ -75,17 +87,19 @@ pub fn main() anyerror!void {
         for (bullets.items, 0..) |*bullet, i| {
             const xLoc = bullet.location.x;
             const yLoc = bullet.location.y;
-            if (xLoc < 0 or xLoc >= constants.SCREEN_WIDTH or yLoc < 0 or yLoc >= constants.SCREEN_HEIGHT) {
-                _ = bullets.swapRemove(i);
+            if (i < bullets.items.len) {
+                if (xLoc < 0 or xLoc >= constants.SCREEN_WIDTH or yLoc < 0 or yLoc >= constants.SCREEN_HEIGHT) {
+                    _ = bullets.swapRemove(i);
+                }
+                bullet.move();
             }
-            bullet.move();
         }
 
         for (asteroids.items, 0..) |*asteroid, i| {
             const xLoc = asteroid.center.x;
             const yLoc = asteroid.center.y;
             if (i < asteroids.items.len) {
-                if (xLoc < -5 or xLoc >= constants.SCREEN_WIDTH + 5 or yLoc < -5 or yLoc >= constants.SCREEN_HEIGHT + 5) {
+                if (xLoc < -10 or xLoc >= constants.SCREEN_WIDTH + 10 or yLoc < -10 or yLoc >= constants.SCREEN_HEIGHT + 10) {
                     print("Removing index {}. Array size {}\n", .{ i, asteroids.items.len });
                     _ = asteroids.swapRemove(i);
                 }
