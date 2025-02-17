@@ -16,7 +16,7 @@ pub fn toRadians(deg: f32) f32 {
     return deg * (std.math.pi / 180.0);
 }
 
-pub fn generateDirectionVector(angle: f16) rl.Vector2 {
+pub fn generateDirectionVector(angle: f32) rl.Vector2 {
     const x = @cos(toRadians(angle));
     const y = @sin(toRadians(angle));
     return rl.Vector2.init(x, y);

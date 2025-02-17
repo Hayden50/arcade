@@ -2,6 +2,7 @@ const std = @import("std");
 const rl = @import("raylib");
 const utils = @import("utils.zig");
 const constants = @import("constants.zig");
+const Game = @import("game.zig").Game;
 
 const Vector2 = rl.Vector2;
 
@@ -60,7 +61,7 @@ pub const Asteroid = struct {
 
     fn calculateInitialVelocity(center: Vector2) Vector2 {
         // Figure out what side the asteroid is starting on
-        var addAngle: f16 = 0.0;
+        var addAngle: f32 = 0.0;
 
         // We don't need the case the asteroid is starting at the bottom of the screen
         // because we don't need to change our angle calculation for that
@@ -105,13 +106,48 @@ pub const Asteroid = struct {
     }
 
     // TODO: Implement this function properly
-    pub fn split(self: *Asteroid) ?[2]*Asteroid {
+    pub fn split(self: *Asteroid, gameState: *Game) ?[2]Asteroid {
         if (self.size == Size.small) {
+            gameState.score += 25;
             return null;
         } else if (self.size == Size.medium) {
-            return null;
+            gameState.score += 50;
+
+            const originAngle = std.math.atan2(self.velocity.y, self.velocity.x) * (180.0 / std.math.pi);
+            const angleOne = originAngle + 15.0;
+            const angleTwo = originAngle - 15.0;
+            const speedScalar = @as(f32, @floatFromInt(@intFromEnum(Size.small))) / 2;
+
+            const asteroid1 = Asteroid{
+                .center = self.center,
+                .velocity = utils.generateDirectionVector(angleOne).normalize().scale(speedScalar),
+                .size = Size.small,
+            };
+            const asteroid2 = Asteroid{
+                .center = self.center,
+                .velocity = utils.generateDirectionVector(angleTwo).normalize().scale(speedScalar),
+                .size = Size.small,
+            };
+            return [2]Asteroid{ asteroid1, asteroid2 };
         } else {
-            return null;
+            gameState.score += 100;
+
+            const originAngle = std.math.atan2(self.velocity.y, self.velocity.x) * (180.0 / std.math.pi);
+            const angleOne = originAngle + 15.0;
+            const angleTwo = originAngle - 15.0;
+            const speedScalar = @as(f32, @floatFromInt(@intFromEnum(Size.medium))) / 2;
+
+            const asteroid1 = Asteroid{
+                .center = self.center,
+                .velocity = utils.generateDirectionVector(angleOne).normalize().scale(speedScalar),
+                .size = Size.medium,
+            };
+            const asteroid2 = Asteroid{
+                .center = self.center,
+                .velocity = utils.generateDirectionVector(angleTwo).normalize().scale(speedScalar),
+                .size = Size.medium,
+            };
+            return [2]Asteroid{ asteroid1, asteroid2 };
         }
     }
 
@@ -121,7 +157,10 @@ pub const Asteroid = struct {
     }
 
     fn draw(self: *Asteroid) void {
-        // TODO: Cleanup this casting
+        rl.drawCircleV(self.center, self.getAsteroidRadius(), constants.WHITE);
+    }
+
+    pub fn getAsteroidRadius(self: *Asteroid) f32 {
         var asteroidSize: f32 = 0;
         switch (self.size) {
             Size.small => {
@@ -134,6 +173,6 @@ pub const Asteroid = struct {
                 asteroidSize = 50.0;
             },
         }
-        rl.drawCircleV(self.center, asteroidSize, constants.WHITE);
+        return asteroidSize;
     }
 };

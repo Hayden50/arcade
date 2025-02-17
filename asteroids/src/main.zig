@@ -17,7 +17,7 @@ pub fn main() anyerror!void {
     rl.setTargetFPS(rl.getMonitorRefreshRate(1));
     rl.clearBackground(constants.BLACK);
 
-    var GameState = Game{};
+    var GlobalGameState = Game{};
     var player = Ship.init();
 
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -69,7 +69,8 @@ pub fn main() anyerror!void {
         }
 
         if (frame + 1 == rl.getMonitorRefreshRate(1)) {
-            GameState.time += 1;
+            print("SCORE: {}\n", .{GlobalGameState.score});
+            GlobalGameState.time += 1;
             frame = 0;
         } else {
             frame += 1;
@@ -81,8 +82,8 @@ pub fn main() anyerror!void {
 
         rl.clearBackground(constants.BLACK);
 
-        // Could I create some sort of union to simplify this code?
         player.move(delta, angle);
+
         for (bullets.items, 0..) |*bullet, i| {
             const xLoc = bullet.location.x;
             const yLoc = bullet.location.y;
@@ -94,7 +95,21 @@ pub fn main() anyerror!void {
             }
         }
 
+        // TODO: Optimize this function!
+        // TODO: FIX BREAKING BUG IN THIS FUNCTION
+        // MultiArrayList??
         for (asteroids.items, 0..) |*asteroid, i| {
+            for (bullets.items, 0..) |*bullet, j| {
+                if (rl.checkCollisionCircles(bullet.location, 1.5, asteroid.center, asteroid.getAsteroidRadius())) {
+                    if (asteroid.split(&GlobalGameState)) |newAsteroids| {
+                        try asteroids.appendSlice(&newAsteroids);
+                    }
+                    _ = asteroids.swapRemove(i);
+                    _ = bullets.swapRemove(j);
+                    continue;
+                }
+            }
+
             const xLoc = asteroid.center.x;
             const yLoc = asteroid.center.y;
             if (i < asteroids.items.len) {
