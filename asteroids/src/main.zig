@@ -43,13 +43,16 @@ pub fn main() anyerror!void {
 
     // Main game loop
     while (!rl.windowShouldClose()) {
-
-        //  TODO: Fix bug where player disappears on hit from asteroid
         if (checkCollision(&player, asteroids.items)) |i| {
             assert(i >= 0 and i < asteroids.items.len);
             _ = asteroids.swapRemove(i);
             GlobalGameState.lives -= 1;
-            if (GlobalGameState.lives == 0) rl.closeWindow();
+            if (GlobalGameState.lives == 0) {
+                rl.closeWindow();
+                bullets.deinit();
+                asteroids.deinit();
+                continue;
+            }
 
             player.center = try findEmptySpace(asteroids.items);
             player.setPoints();
@@ -250,8 +253,8 @@ fn findEmptySpace(asteroids: []Asteroid) error{NoOpenSpace}!Vector2 {
     for (asteroids) |*asteroid| {
         if (rl.checkCollisionCircles(screenCenter, playerRad, asteroid.center, asteroid.getAsteroidRadius())) hitAsteroid = true;
     }
+
     if (!hitAsteroid) {
-        print("MOVING PLAYER TO CENTER", .{});
         return screenCenter;
     }
 

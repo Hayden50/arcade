@@ -163,13 +163,13 @@ pub const Asteroid = struct {
         var asteroidSize: f32 = 0;
         switch (self.size) {
             Size.small => {
-                asteroidSize = 15.0;
+                asteroidSize = 25.0;
             },
             Size.medium => {
-                asteroidSize = 30.0;
+                asteroidSize = 50.0;
             },
             Size.large => {
-                asteroidSize = 50.0;
+                asteroidSize = 75.0;
             },
         }
         return asteroidSize;
