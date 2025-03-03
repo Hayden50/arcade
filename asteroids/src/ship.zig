@@ -14,25 +14,27 @@ pub const Ship = struct {
 
     pub fn init() Ship {
         var s = Ship{};
+        s.setPoints();
 
+        s.draw(constants.WHITE);
+        return s;
+    }
+
+    pub fn setPoints(s: *Ship) void {
         const front = calcVectorDelta(s.size, s.direction);
         s.points[0] = Vector2.init(front.x + s.center.x, front.y + s.center.y);
         const left = calcVectorDelta(s.size, @mod((s.direction + 150.0), 360.0));
         s.points[1] = Vector2.init(left.x + s.center.x, left.y + s.center.y);
         const right = calcVectorDelta(s.size, @mod((s.direction + 210.0), 360.0));
         s.points[2] = Vector2.init(right.x + s.center.x, right.y + s.center.y);
-
-        s.draw(constants.WHITE);
-        return s;
     }
 
     pub fn move(self: *Ship, positionDelta: Vector2, angleDelta: f32) void {
         self.rotate(angleDelta);
         self.shift(positionDelta);
-        self.draw(constants.WHITE);
     }
 
-    fn draw(self: *Ship, color: rl.Color) void {
+    pub fn draw(self: *Ship, color: rl.Color) void {
         rl.drawLineV(self.points[0], self.points[1], color);
         rl.drawLineV(self.points[0], self.points[2], color);
         rl.drawLineV(self.points[1], self.points[2], color);
